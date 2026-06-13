@@ -1,4 +1,4 @@
-# # Berechnung der Sicherheit vor Grundbruch bei Flächenhgründungen
+# # Calculation of safety against bearing capacity failure for shallow foundations
 
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
@@ -6,29 +6,29 @@ import math
 import numpy as np
 from matplotlib.patches import Polygon
 from tkinter import *
-### Funktionsblöcke
+### Function blocks
 
-### Hilfsfunktionen
+### Helper functions
 def deg2rad(x): return np.deg2rad(x)     
 def rad2deg(x): return np.rad2deg(x)     
 
 def get_input(prompt):
-    """Fragt den Benutzer nach einer Zahl und wandelt Kommas zu Punkten um."""
+    """Asks the user for a number and converts commas to dots."""
     while True:
         val = input(f"{prompt}: ").strip().replace(',', '.')
         try:
             return float(val)
         except ValueError:
-            print("Ungueltige Eingabe - bitte eine Zahl eingeben.")
+            print("Invalid input - please enter a number.")
 
 def get_design_situation():
 
-    print("\n--- Bemessungssituation auswaehlen ---")
+    print("\n--- Select design situation ---")
     print(" 1) BS-P  (permanent)")
     print(" 2) BS-T  (transient)")
     print(" 3) BS-A/BS-E  (accidental / earthquake)")
     while True:
-        choice = input("Auswahl [1/2/3]: ").strip()
+        choice = input("Selection [1/2/3]: ").strip()
         if choice in ("1","2","3"):
             break
     
@@ -57,7 +57,7 @@ def get_design_situation():
         gamma_c   = 1.00
         gamma_R   = 1.20
 
-    print(f"\nGewaehlte Situation: {bs}")
+    print(f"\nSelected situation: {bs}")
     print(f"--> gamma_G  = {gamma_G:.2f}   gamma_Q  = {gamma_Q:.2f}")
     print(f"--> gamma_M  = {gamma_M:.2f}   gamma_phi  = {gamma_phi:.2f}   gamma_c = {gamma_c:.2f}")
     print(f"--> gamma_R  = {gamma_R:.2f}\n")
@@ -65,60 +65,60 @@ def get_design_situation():
     return bs, gamma_G, gamma_Q, gamma_M, gamma_phi, gamma_c, gamma_R
 
 def get_foundation_type():
-    print("\n--- Fundamenttyp ---")
-    print(" 1) Rechteck (Einzelfundament)")
-    print(" 2) Streifenfundament (Berechnung je lfm; a = 1,00 m)")
+    print("\n--- Foundation type ---")
+    print(" 1) Rectangle (pad foundation)")
+    print(" 2) Strip foundation (calculation per linear meter; a = 1.00 m)")
     while True:
-        c = input("Auswahl [1/2]: ").strip()
+        c = input("Selection [1/2]: ").strip()
         if c in ("1", "2"):
             return "Rechteck" if c == "1" else "Streifen"
-        print("Bitte 1 oder 2 eingeben.")
+        print("Please enter 1 or 2.")
 
         if 'foundation_type' in globals():
-            print(f"Fundamenttyp: {get_foundation_type}")
+            print(f"Foundation type: {get_foundation_type}")
         else:
             ft = get_foundation_type()
-            print(f"Fundamenttyp: {ft}")
+            print(f"Foundation type: {ft}")
 
 def get_foundation_dimensions(foundation_type):
 
     while True:
-        print("\n--- Fundamentabmessungen ---")
+        print("\n--- Foundation dimensions ---")
         if foundation_type == "Streifen":
             a = 1.00  
-            b = get_input("Breite b (m)")
+            b = get_input("Width b (m)")
             if b <= 0:
-                print(" b muss > 0 sein."); continue
-            h = get_input("Hoehe h (m)")
+                print(" b must be > 0."); continue
+            h = get_input("Height h (m)")
             if h <= 0:
-                print(" h muss > 0 sein."); continue
-            d = get_input(f"Einbindetiefe d (m, <= h = {h:.3f})")
+                print(" h must be > 0."); continue
+            d = get_input(f"Embedment depth d (m, <= h = {h:.3f})")
             if d <= 0 or d > h:
-                print(f" d muss > 0 und <= h ({h:.3f}) sein."); continue
+                print(f" d must be > 0 and <= h ({h:.3f})."); continue
             
-            print("\n--- Gewählte Fundamentabmessungen ---")
-            print(f"Fundamenttyp: {foundation_type}")
+            print("\n--- Selected foundation dimensions ---")
+            print(f"Foundation type: {foundation_type}")
             print(f"a = {a:.3f} m   b = {b:.3f} m   h = {h:.3f} m   d = {d:.3f} m")
             return a, b, h, d
 
-        a = get_input("Laenge a (m)")
+        a = get_input("Length a (m)")
         if a <= 0:
-            print(" a muss > 0 sein."); continue
+            print(" a must be > 0."); continue
 
-        b = get_input(f"Breite b (m, <= a = {a:.3f})")
+        b = get_input(f"Width b (m, <= a = {a:.3f})")
         if b <= 0 or b > a:
-            print(f" b muss > 0 und <= a ({a:.3f}) sein."); continue
+            print(f" b must be > 0 and <= a ({a:.3f})."); continue
 
-        h = get_input("Hoehe h (m)")
+        h = get_input("Height h (m)")
         if h <= 0:
-            print(" h muss > 0 sein."); continue
+            print(" h must be > 0."); continue
 
-        d = get_input(f"Einbindetiefe d (m, <= h = {h:.3f})")
+        d = get_input(f"Embedment depth d (m, <= h = {h:.3f})")
         if d <= 0 or d > h:
-            print(f" d muss > 0 und <= h ({h:.3f}) sein."); continue
+            print(f" d must be > 0 and <= h ({h:.3f})."); continue
 
-        print("\n--- Gewählte Fundamentabmessungen ---")
-        print(f"Fundamenttyp: {foundation_type}")
+        print("\n--- Selected foundation dimensions ---")
+        print(f"Foundation type: {foundation_type}")
         print(f"a = {a:.3f} m   b = {b:.3f} m   h = {h:.3f} m   d = {d:.3f} m")
 
         return a, b, h, d
@@ -126,21 +126,21 @@ def get_foundation_dimensions(foundation_type):
 def get_soil_profile():
 
     while True:
-        n = input("\nAnzahl der Bodenschichten (1 oder 2): ").strip()
+        n = input("\nNumber of soil layers (1 or 2): ").strip()
         if n in ('1','2'):
             n = int(n); break
-        print("Bitte 1 oder 2 eingeben.")
+        print("Please enter 1 or 2.")
 
     layers = []
     for i in range(1, n+1):
-        name  = input(f"Bezeichnung Schicht {i}: ").strip() or f"Schicht_{i}"
-        phi   = get_input(f"Winkel phi Schicht {i} (degree)")
-        gamma = get_input(f"Wichte gamma Schicht {i} (kN/m^3)")
-        c     = get_input(f"Kohaesion c Schicht {i} (kN/m^2)")
+        name  = input(f"Designation layer {i}: ").strip() or f"Layer_{i}"
+        phi   = get_input(f"Angle phi layer {i} (degree)")
+        gamma = get_input(f"Unit weight gamma layer {i} (kN/m^3)")
+        c     = get_input(f"Cohesion c layer {i} (kN/m^2)")
         bottom = None
 
         if n == 2 and i == 1:
-            bottom = get_input("Tiefe UK Schicht 1 unter GOK (m)")
+            bottom = get_input("Depth bottom of layer 1 below GL (m)")
         layers.append({
             "name":   name,
             "phi":    phi,
@@ -149,9 +149,9 @@ def get_soil_profile():
             "bottom": bottom
         })
 
-    gw = input("\nIst Grundwasser vorhanden? (j/n): ").strip().lower()
+    gw = input("\nIs groundwater present? (j/n): ").strip().lower()
     if gw == 'j':
-        z_gw    = get_input("Tiefe GW-Spiegel unter GOK (m)")
+        z_gw    = get_input("Depth of GW level below GL (m)")
         gamma_w = 10.0
     else:
         z_gw    = None
@@ -166,14 +166,14 @@ def get_soil_profile():
         else:
             layer["gamma_prime"] = layer["gamma"] - gamma_w
 
-    print("\n-----Bodenaufbau-----")
-    print("\nEingegebener Bodenaufbau:")
+    print("\n-----Soil profile-----")
+    print("\nEntered soil profile:")
     print("-" * 86)
-    hdr = f"{'Idx':>3} {'Bezeichnung':<14} {'phi (deg)':>10} {'gamma (kN/m³)':>16} {'c (kN/m²)':>12} {'gamma\' (kN/m³)':>18} {'UK (m)':>8}"
+    hdr = f"{'Idx':>3} {'Designation':<14} {'phi (deg)':>10} {'gamma (kN/m³)':>16} {'c (kN/m²)':>12} {'gamma\' (kN/m³)':>18} {'Bottom (m)':>8}"
     print(hdr)
     print("-" * 86)
     for i, L in enumerate(layers, start=1):
-        name = str(L.get("name", f"Schicht_{i}"))
+        name = str(L.get("name", f"Layer_{i}"))
         phi = float(L.get("phi", 0.0))
         gamma = float(L.get("gamma", 0.0))
         c = float(L.get("c", 0.0))
@@ -184,29 +184,29 @@ def get_soil_profile():
     print("-" * 86)
 
     if z_gw is not None:
-        print(f"Grundwasser: vorhanden, GW-Spiegel = {z_gw:.3f} m unter GOK, gamma_w = {gamma_w:.3f} kN/m³")
+        print(f"Groundwater: present, GW level = {z_gw:.3f} m below GL, gamma_w = {gamma_w:.3f} kN/m³")
     else:
-        print("Grundwasser: nicht vorhanden")
+        print("Groundwater: not present")
 
     return layers, z_gw, gamma_w
 
 def get_loads(foundation_type="Rechteck"):
     """
-    Fragt die Lasten am Fundament ab.
-    Rückgabe: charakteristische Lasten für ständige, veränderliche (vertikale) und horizontale Lasten.
-    Die Einheit hängt vom Fundamenttyp ab.
+    Queries the loads on the foundation.
+    Return: characteristic loads for permanent, variable (vertical) and horizontal loads.
+    The unit depends on the foundation type.
     """
     unit = "kN/m" if foundation_type == "Streifen" else "kN"
-    print("\n--- Lasten am Fundament ---")
+    print("\n--- Loads on the foundation ---")
 
-    Vgk = get_input(f"Charakteristische staendige Last Vg,k  ({unit})")
-    var = input(f"Tritt eine vertikale veraenderliche Last auf? (j/n): ").strip().lower()
-    Qk  = get_input(f"Charakteristische vertikale veraenderliche Last Qk ({unit})") if var == 'j' else 0.0
+    Vgk = get_input(f"Characteristic permanent load Vg,k  ({unit})")
+    var = input(f"Does a vertical variable load occur? (j/n): ").strip().lower()
+    Qk  = get_input(f"Characteristic vertical variable load Qk ({unit})") if var == 'j' else 0.0
 
-    varH = input(f"Tritt eine horizontale Last auf? (j/n): ").strip().lower()
-    Hk   = get_input(f"Charakteristische horizontale Last Hk ({unit})") if varH == 'j' else 0.0
+    varH = input(f"Does a horizontal load occur? (j/n): ").strip().lower()
+    Hk   = get_input(f"Characteristic horizontal load Hk ({unit})") if varH == 'j' else 0.0
 
-    print("\n--- Gewählte Lasten (charakteristisch) ---")
+    print("\n--- Selected loads (characteristic) ---")
     print(f"Vg,k = {Vgk:.3f} {unit}")
     print(f"Qk   = {Qk:.3f} {unit}" if Qk and abs(Qk) > 1e-12 else "Qk   = 0.000 " + unit)
     print(f"Hk   = {Hk:.3f} {unit}" if Hk and abs(Hk) > 1e-12 else "Hk   = 0.000 " + unit)
@@ -344,7 +344,7 @@ def draw_active_rankine(ax, geom, color='tab:orange', lw=2.0):
 
     x0, y0 = geom["right_line"]["p0"]
     x1, y1 = geom["right_line"]["p1"]
-    ax.plot([x0, x1], [y0, y1], color=color, lw=lw, zorder=6, label="Rankine aktiv (rechts, theta2)")
+    ax.plot([x0, x1], [y0, y1], color=color, lw=lw, zorder=6, label="Rankine active (right, theta2)")
 
     x0, y0 = geom["left_line"]["p0"]
     x1, y1 = geom["left_line"]["p1"]
@@ -551,12 +551,12 @@ def spiral_wedge_polygon(spi, b, d):
     return pts
 
 def active_triangle_polygon(act, b, d):
-    """Polygon aktiver Keil."""
+    """Polygon active wedge."""
     A = tuple(act["apex"])
     return [(0.0, -d), (b, -d), A]
 
 def passive_triangle_polygon(spi, pr, b, d):
-    """Polygon passiver Keil."""
+    """Polygon passive wedge."""
     S  = (float(spi["xs_end"]), float(spi["ys_end"]))
     Xe = (float(pr["x_end"]), -d)
     return [S, Xe, (b, -d)]
@@ -610,9 +610,9 @@ def seg_len(P, Q):
 
 def split_segment_by_hline(P, Q, y_h, tol=1e-9):
     """
-    Splittet die Länge des Segments P->Q an der Horizontalen y=y_h.
-    Rückgabe: (L_oben, L_unten, Schnittpunkt oder None)
-      'oben' = Teil mit y >= y_h (geringere Tiefe), 'unten' = y < y_h.
+    Splits the length of the segment P->Q at the horizontal y=y_h.
+    Return: (L_top, L_bot, intersection point or None)
+      'top' = part with y >= y_h (shallower depth), 'bot' = y < y_h.
     """
     x1, y1 = P; x2, y2 = Q
     L_tot = seg_len(P, Q)
@@ -812,7 +812,7 @@ def compute_failure_geometry(b: float, d: float, layers, phi_geom: float | None 
     A = tuple(act["apex"])
 
 
-    spi = log_spiral_right_from_apex(b=b, d=d, phi_deg=phi_geom, n_pts=n_pts)
+    spi = log_spiral_right_from_apex(b=b, d=d, phi_geom=phi_geom, n_pts=n_pts)
     S = (float(spi["xs_end"]), float(spi["ys_end"]))  
 
 
@@ -882,12 +882,12 @@ def iterate_equivalent_params_two_layer(b, d, layers,
                                         tol_rel=0.01, max_iter=50, verbose=True, n_pts=600):
     
     if len(layers) != 2:
-        raise ValueError("Iteration ist nur für 2-schichtige Profile vorgesehen.")
+        raise ValueError("Iteration is only intended for 2-layer profiles.")
         
     zsw_gok = float(layers[0]['bottom'])
 
     if zsw_gok <= d + 1e-5:
-        if verbose: print(f"Info: Schichtgrenze ({zsw_gok}m) <= Sohle ({d}m). Keine Iteration.")
+        if verbose: print(f"Info: Layer boundary ({zsw_gok}m) <= Base ({d}m). No iteration.")
         L2 = layers[1]
         
         phi_mean   = 0.5 * (float(layers[0]['phi']) + float(layers[1]['phi']))
@@ -1006,7 +1006,7 @@ def iterate_equivalent_params_two_layer(b, d, layers,
     
     if final_phi > limit_phi:
         if verbose:
-            print(f"\n*** 5°-Bedingung aktiv! Reduziere phi von {final_phi:.2f}° auf {limit_phi:.2f}° ***")
+            print(f"\n*** 5° condition active! Reducing phi from {final_phi:.2f}° to {limit_phi:.2f}° ***")
         final_phi = limit_phi
         
     
@@ -1408,7 +1408,7 @@ def plot_foundation(a, b, h, d, layers, z_gw, Vgk, Qk, foundation_type="Rechteck
                                      facecolor='none', edgecolor='black',
                                      linestyle='--', linewidth=1.6, zorder=3)
         ax1.add_patch(rect_eff)
-        ax1.text(off_x + a_eff/2, off_y + b_eff + 0.03*b, "a', b' (rechnerisch)",
+        ax1.text(off_x + a_eff/2, off_y + b_eff + 0.03*b, "a', b' (calculated)",
                  ha='center', va='bottom', fontsize=9)
 
     if Hk and abs(Hk) > 1e-12:
@@ -1438,9 +1438,9 @@ def plot_foundation(a, b, h, d, layers, z_gw, Vgk, Qk, foundation_type="Rechteck
     ax1.set_aspect('equal','box')
     ax1.set_xlim(-0.1*a, 1.1*a)
     ax1.set_ylim(-0.1*b, 1.1*b)
-    ax1.set_title('Grundriss')
-    ax1.set_xlabel('Laenge (m)')
-    ax1.set_ylabel('Breite (m)')
+    ax1.set_title('Floor plan')
+    ax1.set_xlabel('Length (m)')
+    ax1.set_ylabel('Width (m)')
 
     y_bot = -d
     y_top = h - d
@@ -1505,7 +1505,7 @@ def plot_foundation(a, b, h, d, layers, z_gw, Vgk, Qk, foundation_type="Rechteck
         )
 
     ax2.hlines(0, x_min, x_max, colors='black', linewidth=1.5, zorder=2)
-    ax2.text(x_max, 0, ' GOK', va='bottom', ha='left', color='black', zorder=2)
+    ax2.text(x_max, 0, ' GL', va='bottom', ha='left', color='black', zorder=2)
 
     fund = patches.Rectangle((0, y_bot), b, h,
                              facecolor='lightgray', edgecolor='black',
@@ -1580,8 +1580,8 @@ def plot_foundation(a, b, h, d, layers, z_gw, Vgk, Qk, foundation_type="Rechteck
     )
 
     if not use_delta_ast and (Hk is not None) and (abs(Hk) > 1e-12) and (delta_deg_for_geo is not None):
-        print(f"⚠️ δ-Formeln nicht angewandt, weil |δ| ≥ φ (|δ|={abs(delta_deg_for_geo):.2f}°, φ={phi_geom:.2f}°). "
-            "Gleitfläche bleibt im Grundfall.")
+        print(f"⚠️ δ formulas not applied because |δ| >= φ (|δ|={abs(delta_deg_for_geo):.2f}°, φ={phi_geom:.2f}°). "
+            "Slip surface remains in the basic case.")
 
 
     if use_delta_ast:
@@ -1595,7 +1595,7 @@ def plot_foundation(a, b, h, d, layers, z_gw, Vgk, Qk, foundation_type="Rechteck
         draw_log_spiral_right(ax2, spi)
         pr  = passive_rankine_right_from_spiral_end_theta(spi, d=d, theta1_deg=ang["theta1"])
         draw_passive_rankine_right(ax2, pr)
-        print(f"\n--- Gleitkörper (δ-Ast) | δ={delta_deg_for_geo:.3f}°, θ1={ang['theta1']:.2f}°, "
+        print(f"\n--- Slip body (δ-branch) | δ={delta_deg_for_geo:.3f}°, θ1={ang['theta1']:.2f}°, "
             f"θ2={ang['theta2']:.2f}°, θ3={ang['theta3']:.2f}°, ν={ang['nu']:.2f}°")
     else:
         act = active_rankine_geometry(b=b, d=d, phi_deg=phi_geom)
@@ -1612,7 +1612,7 @@ def plot_foundation(a, b, h, d, layers, z_gw, Vgk, Qk, foundation_type="Rechteck
 
     theta1 = 45.0 - 0.5*phi_geom
     theta2 = 45.0 + 0.5*phi_geom
-    print("\n--- Geometrische Kennwerte/Gleitkörper (verwendetes φ für Konstruktion) ---")
+    print("\n--- Geometric parameters/slip body (used φ for construction) ---")
     print(f"φ_geom={phi_geom:.3f}° → θ1={theta1:.1f}°, θ2=θ3={theta2:.1f}°, ν=90.0°")
 
     pad = 0.10 * b
@@ -1661,9 +1661,9 @@ def plot_foundation(a, b, h, d, layers, z_gw, Vgk, Qk, foundation_type="Rechteck
     ax2.set_aspect('equal', 'box')
     ax2.set_xlim(x_lo_ext, x_hi_ext)
     ax2.set_ylim(y_lo_ext, y_max)
-    ax2.set_title('Seitenansicht')
-    ax2.set_xlabel('Breite (m)')
-    ax2.set_ylabel('Tiefe (m)')
+    ax2.set_title('Side view')
+    ax2.set_xlabel('Width (m)')
+    ax2.set_ylabel('Depth (m)')
 
 
     plt.show()
@@ -1688,7 +1688,7 @@ def _fmt_xy(p):
     except Exception:
         return "(—, —)"
 
-def print_geometry_construction(geo: dict, title="KENNWERTE FÜR DIE KONSTRUKTION DER GRUNDBRUCHFIGUR"):
+def print_geometry_construction(geo: dict, title="PARAMETERS FOR THE CONSTRUCTION OF THE BEARING CAPACITY FIGURE"):
 
     banner(title)
 
@@ -1698,19 +1698,19 @@ def print_geometry_construction(geo: dict, title="KENNWERTE FÜR DIE KONSTRUKTIO
     theta3 = theta2
     nu     = 90.0
 
-    print("Winkel (Grad):")
+    print("Angles (degrees):")
     kv("φ_geom", f"{phi:.3f}", "°")
     kv("θ1 / θ2 / θ3 / ν", f"{theta1:.2f} / {theta2:.2f} / {theta3:.2f} / {nu:.1f}", "°")
 
-    print("\nPunkte / Radien / Längen (aus geo):")
+    print("\nPoints / Radii / Lengths (from geo):")
     kv("Apex A", _fmt_xy(geo.get("A")))
-    kv("Übergang S", _fmt_xy(geo.get("S")))
-    kv("Sohlende E", _fmt_xy(geo.get("E")))
+    kv("Transition S", _fmt_xy(geo.get("S")))
+    kv("Base end E", _fmt_xy(geo.get("E")))
     kv("r2 (|Pol→A|)", _fmt_num(geo.get("r2")), "m")
     kv("r1 (|Pol→S|)", _fmt_num(geo.get("r1")), "m")
-    kv("L_s (Spiralenbogen)", _fmt_num(geo.get("L_s")), "m")
+    kv("L_s (Spiral arc)", _fmt_num(geo.get("L_s")), "m")
 
-    print("\nTiefenkomponenten / Außenlängen (aus geo):")
+    print("\nDepth components / Outer lengths (from geo):")
     kv("z_a = r2·sin(θ2)", _fmt_num(geo.get("z_a")), "m")
     kv("z_b = r1·sin(θ1)", _fmt_num(geo.get("z_b")), "m")
     kv("L1 / L2 / L3 / L4",
@@ -1719,32 +1719,32 @@ def print_geometry_construction(geo: dict, title="KENNWERTE FÜR DIE KONSTRUKTIO
     kv("L_total (= L1+L2+L_s+L3+L4)", _fmt_num(geo.get("L_total")), "m")
 
     zsw = geo.get("z_sw")
-    kv("z_sw (UK Schicht 1, unter GOK)", _fmt_num(zsw) if zsw is not None else "—", "m")
+    kv("z_sw (Bottom layer 1, below GL)", _fmt_num(zsw) if zsw is not None else "—", "m")
 
 
-# Eingaben interaktiv sammeln
+# Collect inputs interactively
 
 ctx = {}
 
-# 1) EC7-Bemessungssituation
+# 1) EC7 Design situation
 bs, gamma_G, gamma_Q, gamma_M, gamma_phi, gamma_c, gamma_R = get_design_situation()
 ctx.update(dict(bs=bs, gamma_G=gamma_G, gamma_Q=gamma_Q, gamma_M=gamma_M,
                 gamma_phi=gamma_phi, gamma_c=gamma_c, gamma_R=gamma_R))
 
-# 2) Fundament
+# 2) Foundation
 foundation_type = get_foundation_type()
 a, b, h, d = get_foundation_dimensions(foundation_type)
 ctx.update(dict(foundation_type=foundation_type, a=a, b=b, h=h, d=d))
 
-# 3) Bodenprofil
+# 3) Soil profile
 layers, z_gw, gamma_w = get_soil_profile()
 ctx.update(dict(layers=layers, z_gw=z_gw, gamma_w=gamma_w))
 
-# 4) Lasten (char)
+# 4) Loads (char)
 Vgk, Qk, Hk, unit_force = get_loads(foundation_type)
 ctx.update(dict(Vgk=Vgk, Qk=Qk, Hk=Hk, unit_force=unit_force))
 
-# Eingaben zusammenfassen & Vorverarbeitung (δ, Bemessungslasten) python Code kopieren
+# Summarize inputs & preprocessing (δ, design loads) python code copy
 
 Vk_char = ctx["Vgk"] + ctx["Qk"]
 Hk_char = ctx["Hk"]
@@ -1752,23 +1752,23 @@ delta_deg = load_inclination_angle_delta_char(Vk_char, Hk_char)
 
 phi_base_deg = float(ctx["layers"][1]["phi"]) if (len(ctx["layers"])==2 and ctx["d"] > (ctx["layers"][0]["bottom"] or 0.0)) else float(ctx["layers"][0]["phi"])
 
-# Bemessungslasten
+# Design loads
 V_ed = ctx["gamma_G"]*ctx["Vgk"] + ctx["gamma_Q"]*ctx["Qk"]
 H_ed = ctx["gamma_Q"]*ctx["Hk"] if ctx["Hk"] else 0.0
 
-# speichern
+# save
 ctx.update(dict(delta_deg=delta_deg, phi_base_deg=phi_base_deg, V_ed=V_ed, H_ed=H_ed))
 
 
 def print_geometry_construction_from_phi(b, d, layers, phi_geom, title=None):
     
     geo = compute_failure_geometry(b=b, d=d, layers=layers, phi_geom=phi_geom, n_pts=600)
-    print_geometry_construction(geo, title or "KENNWERTE FÜR DIE KONSTRUKTION DER GRUNDBRUCHFIGUR")
+    print_geometry_construction(geo, title or "PARAMETERS FOR THE CONSTRUCTION OF THE BEARING CAPACITY FIGURE")
     return geo  
 
 def print_iteration_table_geo(rows, b, d, layers):
     
-    banner("ITERATION – GEOMETRIE-KENNWERTE (zur Grundbruchfigur)")
+    banner("ITERATION - GEOMETRY PARAMETERS (for the bearing capacity figure)")
     header = ("it | φ_geom  | θ1/θ2  |  A.x    A.y   |   S.x    S.y   |  r2    r1  |  Ls   |   L1    L2    L3    L4  | L_total")
     print(header)
     print("-" * len(header))
@@ -1784,12 +1784,12 @@ def print_iteration_table_geo(rows, b, d, layers):
               f"{geo['r2']:>5.3f} {geo['r1']:>5.3f} | {geo['L_s']:>5.3f} | "
               f"{geo['L1']:>6.3f} {geo['L2']:>6.3f} {geo['L3']:>6.3f} {geo['L4']:>6.3f} | {geo['L_total']:>7.3f}")
 
-#Iterationstabelle beim zweischichtigen Bodenaufbau
+# Iteration table for two-layer soil profile
 layers_eq = None
 phi_for_geometry = None
 
 if len(ctx["layers"]) == 2:
-    banner("ITERATION GEMITTELTER KENNWERTE (2-Schicht, Δφ ≤ 1%)")
+    banner("ITERATION OF AVERAGED PARAMETERS (2-layer, Δφ <= 1%)")
     itres = iterate_equivalent_params_two_layer(
         b=ctx["b"],
         d=ctx["d"],
@@ -1800,16 +1800,16 @@ if len(ctx["layers"]) == 2:
         n_pts=600
     )
     print_iteration_table(itres["rows"])
-    print(f"\nErgebnis: φ_eq={itres['phi_eq']:.3f}°, γ_eq={itres['gamma_eq']:.3f} kN/m³, c_eq={itres['c_eq']:.3f} kN/m² "
-          f"(nach {itres['iterations']} Iterationen)")
-    print("\n--- Plausibilitätscheck φ_eq gegen arithmetisches Mittel (±5°) ---")
+    print(f"\nResult: φ_eq={itres['phi_eq']:.3f}°, γ_eq={itres['gamma_eq']:.3f} kN/m³, c_eq={itres['c_eq']:.3f} kN/m² "
+          f"(after {itres['iterations']} iterations)")
+    print("\n--- Plausibility check φ_eq against arithmetic mean (±5°) ---")
     print(f"φ_arith = (φ1+φ2)/2 = {itres['phi_mean']:.3f}°")
-    print(f"Abweichung |φ_eq - φ_arith| = {itres['delta_abs']:.3f}° --> "
-          f"{'OK (≤5°)' if itres['within_5deg'] else 'NICHT OK (>5°)'}")
+    print(f"Deviation |φ_eq - φ_arith| = {itres['delta_abs']:.3f}° --> "
+          f"{'OK (<=5°)' if itres['within_5deg'] else 'NOT OK (>5°)'}")
     print_iteration_table_geo(itres["rows"], b=ctx["b"], d=ctx["d"], layers=ctx["layers"])
 
     print_geometry_construction_from_phi(ctx["b"], ctx["d"], ctx["layers"], itres["phi_eq"],
-        title="FINALE KENNDATEN DER GRUNDBRUCHFIGUR (für φ_eq)")
+        title="FINAL PARAMETERS OF THE BEARING CAPACITY FIGURE (for φ_eq)")
 
     layers_eq = [{
         "name": "Ersatz",
@@ -1822,16 +1822,16 @@ if len(ctx["layers"]) == 2:
     phi_for_geometry = itres["phi_eq"]
    
     print_geometry_construction_from_phi(ctx["b"], ctx["d"], ctx["layers"], phi_for_geometry,
-    title="KENNWERTE DER GRUNDBRUCHFIGUR (Plot-Geometrie)")
+    title="PARAMETERS OF THE BEARING CAPACITY FIGURE (Plot Geometry)")
 else:
     phi_for_geometry = ctx["phi_base_deg"]
 
 
 
 ctx.update(dict(layers_eq=layers_eq, phi_for_geometry=phi_for_geometry))
-print("\n✓ Iterations-/Geometrie-Werte gesetzt.")
+print("\n✓ Iteration/geometry values set.")
 
-# Plotausausgabe
+# Plot output
 
 
 a_prime_plot, b_prime_plot, _, _ = effective_dimensions_from_eccentricity(ctx["a"], ctx["b"], 0.0, 0.0)
@@ -1859,7 +1859,7 @@ plot_foundation(
     alpha_deg_geo=0.0,
     beta_deg_geo=0.0
 )
-# === Grundbruch berechnen & Kennwerte ausgeben ===
+# === Calculate bearing capacity failure & output parameters ===
 foundation_type_eff = "Streifen" if abs(ctx["a"] - 1.0) < 1e-6 else "Rechteck"
 unitF = "kN/m" if foundation_type_eff == "Streifen" else "kN"
 
@@ -1893,7 +1893,7 @@ R_n_k, R_n_d, det = compute_Rn_bearing(
 
 # GEO-2
 ok = ctx["V_ed"] < R_n_d
-banner("NACHWEIS GRUNDBRUCH (GEO-2)")
-print(f"  V_ed = {ctx['V_ed']:.2f} {unitF}   <   R_n,d = {R_n_d:.2f} {unitF}  ->  {'Sicherheit gegen Grundbruch ist nachgewiesen.' if ok else 'Sicherheit gegen Grundbruch NICHT nachweisbar.'}")
+banner("VERIFICATION OF BEARING CAPACITY (GEO-2)")
+print(f"  V_ed = {ctx['V_ed']:.2f} {unitF}   <   R_n,d = {R_n_d:.2f} {unitF}  ->  {'Safety against bearing capacity failure is verified.' if ok else 'Safety against bearing capacity failure NOT verified.'}")
 mu = ctx["V_ed"] / R_n_d if R_n_d > 0 else float('inf')
-kv("Ausnutzungsgrad ν = V_ed / R_n,d", f"{mu:.2f}")
+kv("Utilization factor ν = V_ed / R_n,d", f"{mu:.2f}")
